@@ -1,0 +1,21 @@
+{
+  "name": "realtime-twitter",
+  "version": "0.1.8",
+  "private": true,
+  "engines": {
+    "iojs": "1.1.x"
+  },
+  "scripts": {
+    "start": "node ./main.js"
+  },
+  "dependencies": {
+    "ws": "^0.7.1"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-jshint": "^0.11.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-githooks": "^0.3.1",
+    "grunt-jsbeautifier": "^0.2.8"
+  }
+}
