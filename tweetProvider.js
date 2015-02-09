@@ -14,6 +14,7 @@ function tweetProvider(websocketConnection, tweetStream) {
         var jtweet = JSON.parse(tweet);
 
         //messages/non-tweets have only one key, which is the type of message they are
+        //TODO: move this either in to another layer, or in to twitterstream. If we have a lot of clients connected, why keep redoing all the same work for each of them.
         if (Object.keys(jtweet).length > 1) {
             var currentTimestamp = new Date();
 

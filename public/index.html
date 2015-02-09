@@ -2,24 +2,74 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title></title>
-    <link rel="stylesheet" type="text/css" href="stylesheets/style.css"/>
-    <script>
-        var host = location.origin.replace(/^http/, 'ws');
-        var ws = new WebSocket(host);
-        ws.onmessage = function (event) {
-            var li = document.createElement('li');
-            li.innerHTML = event.data;
-            li.classList.add('tweet');
+    <title>A REALTIME TWITTER THING</title>
 
-            var parentElement = document.getElementById('tweets');
-            parentElement.insertBefore(li, parentElement.firstChild);
+    <script src="http://fb.me/react-0.12.2.min.js"></script>
+    <script src="http://fb.me/JSXTransformer-0.12.2.js"></script>
+
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/style.css"/>
+    <script type="text/jsx">
+
+
+        var Tweets = React.createClass({
+            getInitialState: function() {
+                return {
+                    tweets: [],
+                    tweetStream: new TweetStream(location.origin.replace(/^http/, 'ws'))
+                };
+            },
+            componentDidMount: function() {
+                this.state.tweetStream.addListener(function(tweet){
+                    var oldTweets = this.state.tweets;
+                    oldTweets.unshift(tweet);
+                    this.setState({tweets: oldTweets});
+                }.bind(this));
+
+            },
+            render: function() {
+                var tweets = this.state.tweets.map(function(tweet) {
+                    return (
+                            <li className="tweet">{tweet}</li>
+                    );
+                });
+                return (
+                    <ul id="tweets">
+                        {tweets}
+                    </ul>
+                );
+            }
+        });
+
+        React.render(
+            < Tweets />,
+            document.getElementById('tweets-pre')
+        );
+
+    </script>
+    <script>
+
+        function TweetStream (wsURL) {
+            var ws = new WebSocket(wsURL);
+
+            this.listeners = [];
+
+            ws.onmessage = function (event) {
+                this.listeners.forEach(function(listen) {
+                    listen(event.data);
+                });
+            }.bind(this);
+        }
+
+        TweetStream.prototype.addListener = function addListener(cb) {
+            this.listeners.push(cb);
         };
+
     </script>
 </head>
 <body>
     <section class="tweetsContainer">
-        <ul id="tweets">
+        <ul id="tweets-pre">
 
         </ul>
     </section>
