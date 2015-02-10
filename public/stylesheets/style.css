@@ -19,3 +19,9 @@ a {
     line-height: 1.25em;
     padding: 0.4em;
 }
+
+#tweetSettings {
+    background-color: #91AA9D;
+    display: inline-block;
+    padding: 1.5em;
+}

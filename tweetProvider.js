@@ -10,6 +10,8 @@ function tweetProvider(websocketConnection, tweetStream) {
     this.tweetsPerSecondRate = 1;
     this.millisecondsUntilTweet = (1 / this.tweetsPerSecondRate) * 1000;
 
+
+
     function receiveTweet(tweet) {
         var jtweet = JSON.parse(tweet);
 
@@ -25,7 +27,8 @@ function tweetProvider(websocketConnection, tweetStream) {
 
         } else {
             this.emit('message', jtweet);
-            console.log('discarded tweet: ' + tweet);
+            //TODO: consider throwing this to unimportant logging using winston
+            //console.log('discarded tweet: ' + tweet);
         }
     }
 
@@ -39,9 +42,12 @@ function tweetProvider(websocketConnection, tweetStream) {
     });
 }
 
-
-
 tweetProvider.prototype = Object.create(events.EventEmitter.prototype);
 tweetProvider.prototype.constructor = tweetProvider;
+
+tweetProvider.prototype.setRate = function(newRate) {
+    this.tweetsPerSecondRate = newRate;
+    this.millisecondsUntilTweet = (1 / this.tweetsPerSecondRate) * 1000;
+};
 
 module.exports = tweetProvider;

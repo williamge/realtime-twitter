@@ -16,7 +16,7 @@
             getInitialState: function() {
                 return {
                     tweets: [],
-                    tweetStream: new TweetStream(location.origin.replace(/^http/, 'ws'))
+                    tweetStream: tweetStream
                 };
             },
             componentDidMount: function() {
@@ -54,26 +54,65 @@
     </script>
     <script>
 
-        function TweetStream (wsURL) {
-            var ws = new WebSocket(wsURL);
+        var TweetStream = (function() {
 
-            this.listeners = [];
+            var ws;
 
-            ws.onmessage = function (event) {
-                var parsed = JSON.parse(event.data);
-                this.listeners.forEach(function(listen) {
-                    listen(parsed);
+            function TweetStream (wsURL) {
+                ws = new WebSocket(wsURL);
+
+                this.listeners = [];
+
+                ws.onmessage = function (event) {
+                    var parsed = JSON.parse(event.data);
+                    this.listeners.forEach(function(listen) {
+                        listen(parsed);
+                    });
+                }.bind(this);
+            }
+
+            TweetStream.prototype.addListener = function addListener(cb) {
+                this.listeners.push(cb);
+            };
+
+            TweetStream.prototype.send = function(message, value) {
+                ws.send(message, value);
+            };
+
+            return TweetStream;
+        })();
+
+
+        var tweetStream = new TweetStream(location.origin.replace(/^http/, 'ws'));
+
+        document.addEventListener('DOMContentLoaded', function() {
+            (function tweetRateUpdater() {
+                var tweetRate = document.getElementById('tweetRate');
+
+                tweetRate.addEventListener('change', function onTweetRateChange(e) {
+
+                    var tweetRateOutput = document.getElementById('tweetRateOutput');
+                    tweetRateOutput.value = e.currentTarget.value;
+                    tweetStream.send(
+                            JSON.stringify(
+                                    {
+                                        type: 'rate',
+                                        rate: tweetRateOutput.value
+                                    }
+                            )
+                    );
                 });
-            }.bind(this);
-        }
-
-        TweetStream.prototype.addListener = function addListener(cb) {
-            this.listeners.push(cb);
-        };
-
+            })();
+        });
     </script>
 </head>
 <body>
+    <div id="tweetSettings">
+        <label for='tweetRate'>Max tweets per second:</label>
+        <input type='range' id='tweetRate' min='1' value='1' max='10' step='1'>
+        <output for='tweetRate' id='tweetRateOutput'>1</output>
+    </div>
+
     <section class="tweetsContainer">
         <ul id="tweets-pre">
 

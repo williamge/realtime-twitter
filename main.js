@@ -61,6 +61,21 @@ wss.on('connection', function(ws) {
 
     tweets.on('tweet', boundRelayTweet);
 
+    ws.on('message', function(data, flags) {
+        console.log(wsID + ' : received message');
+        var parsed = JSON.parse(data);
+
+        switch (parsed.type) {
+            case 'rate':
+                tweets.setRate(parsed.rate);
+                break;
+            default:
+                console.warn(wsID + ' : received unknown message');
+                break;
+        }
+
+    });
+
     ws.on('close', function() {
         console.log('wss connection closed: ' + wsID);
         tweets.removeListener('tweet', boundRelayTweet)

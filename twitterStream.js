@@ -70,7 +70,8 @@ function twitterStream() {
         return function dataReceived(d) {
             counter++;
             body += d.toString();
-            console.log(d.toString());
+            //TODO: consider throwing this to unimportant logging using winston
+            //console.log(d.toString());
 
             if (body.indexOf('\r\n') != -1) {
                 self.emit('tweet', body);
