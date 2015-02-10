@@ -50,7 +50,7 @@ wss.on('connection', function(ws) {
     var tweets = new tweetProvider(ws, tweetStream);
 
     var relayTweet = function(tweet) {
-        ws.send(tweet.text, function wsSendCallback(err) {
+        ws.send(JSON.stringify(tweet), function wsSendCallback(err) {
             if (err) {
                 console.log(err);
             }

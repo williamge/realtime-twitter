@@ -30,7 +30,12 @@
             render: function() {
                 var tweets = this.state.tweets.map(function(tweet) {
                     return (
-                            <li className="tweet">{tweet}</li>
+                            <li className="tweet">
+                                    <img src={tweet.user.profile_image_url} />
+                                    <span>{tweet.user.name} - </span>
+                                    <a href={ "https://twitter.com/" + tweet.user.screen_name}>@{tweet.user.screen_name}</a>
+                                    <p>{tweet.text}</p>
+                            </li>
                     );
                 });
                 return (
@@ -55,8 +60,9 @@
             this.listeners = [];
 
             ws.onmessage = function (event) {
+                var parsed = JSON.parse(event.data);
                 this.listeners.forEach(function(listen) {
-                    listen(event.data);
+                    listen(parsed);
                 });
             }.bind(this);
         }
