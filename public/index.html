@@ -16,7 +16,8 @@
             getInitialState: function() {
                 return {
                     tweets: [],
-                    tweetStream: tweetStream
+                    tweetStream: tweetStream,
+                    tweetFilter: tweetFilter
                 };
             },
             componentDidMount: function() {
@@ -26,18 +27,30 @@
                     this.setState({tweets: oldTweets});
                 }.bind(this));
 
+                //if performance gets to be a problem, we can just disable this, the tweets will be forcing a state update often enough to make up for not listening to this event
+                this.state.tweetFilter.addListener(function(message) {
+                    if (message === 'languageFilterChange') {
+                        this.forceUpdate();
+                    }
+                }.bind(this));
             },
             render: function() {
-                var tweets = this.state.tweets.map(function(tweet) {
-                    return (
-                            <li className="tweet">
+                var tweets = [];
+                this.state.tweets.some(function(tweet) {
+                    if (tweets.length >= 20) {
+                        return true;
+                    }
+                    if (this.state.tweetFilter.tweetMatchesFilter(tweet)) {
+                        tweets.push(
+                                <li className="tweet">
                                     <img src={tweet.user.profile_image_url} />
                                     <span>{tweet.user.name} - </span>
                                     <a href={ "https://twitter.com/" + tweet.user.screen_name}>@{tweet.user.screen_name}</a>
                                     <p>{tweet.text}</p>
-                            </li>
-                    );
-                });
+                                </li>
+                        );
+                    }
+                }.bind(this));
                 return (
                     <ul id="tweets">
                         {tweets}
@@ -48,7 +61,131 @@
 
         React.render(
             < Tweets />,
-            document.getElementById('tweets-pre')
+            document.getElementById('tweetsContainer')
+        );
+
+        var Tags = React.createClass({
+            getInitialState: function() {
+                return {
+                    tags: {},
+                    tweetStream: tweetStream
+                };
+            },
+            componentDidMount: function() {
+                this.state.tweetStream.addListener(function(tweet){
+                    var oldTags = this.state.tags;
+                    var tags = tweet.entities.hashtags;
+                    tags.forEach(function(tag) {
+                        oldTags[tag.text] = (oldTags[tag.text] || 0) + 1
+                    });
+                    this.setState({tags: oldTags});
+                }.bind(this));
+            },
+            render: function() {
+                var tags = this.state.tags;
+                var tagsList = Object.keys(tags).map(function(tagName) {
+                    return [tagName, tags[tagName]];
+                }).sort(function(a, b) {
+                    return b[1] - a[1];
+                }).slice(0, 14);
+
+                var renderedList = tagsList.map(function(tag) {
+                   return (
+                           <li>
+                                   <span>{'#' + tag[0]}:</span>
+                                   <span>{tag[1]}</span>
+                           </li>
+                   ) ;
+                });
+                return (
+                    <div>
+                        <label>Tags:</label>
+                            <ul>
+                                {renderedList}
+                            </ul>
+                    </div>
+                );
+            }
+        });
+
+        var LanguageItem = React.createClass({
+            setLanguage: function() {
+                tweetFilter.setLanguageFilter(this.props.language);
+            },
+            render: function() {
+                var classText = this.props.active ? 'language-active' : 'language';
+                return (
+                        <li onClick={this.setLanguage} className={classText}>
+                            <span>{this.props.language}:</span>
+                            <span>{this.props.count}</span>
+                        </li>
+                );
+            }
+        });
+
+        var Languages = React.createClass({
+            getInitialState: function() {
+                return {
+                    languages: {},
+                    tweetStream: tweetStream,
+                    tweetFilter: tweetFilter,
+                    activeLanguage: ''
+                };
+            },
+            componentDidMount: function() {
+                this.state.tweetStream.addListener(function(tweet){
+                    var oldLanguages = this.state.languages;
+                    var languages = [tweet.lang];
+                    languages.forEach(function(language) {
+                        oldLanguages[language] = (oldLanguages[language] || 0) + 1
+                    });
+                    this.setState({languages: oldLanguages});
+                }.bind(this));
+
+                this.state.tweetFilter.addListener(function(message, data){
+                    if (message === 'languageFilterChange') {
+                        this.setState({activeLanguage: data});
+                    }
+                }.bind(this));
+            },
+            render: function() {
+                var languages = this.state.languages;
+                var languagesList = Object.keys(languages).map(function(languageName) {
+                    return [languageName, languages[languageName]];
+                }).sort(function(a, b) {
+                    return b[1] - a[1];
+                }).slice(0, 14);
+
+                var renderedList = languagesList.map(function(tag) {
+                    var isActive = this.state.activeLanguage === tag[0];
+                    return (
+                            <LanguageItem language={tag[0]} count={tag[1]} active={isActive} />
+                    ) ;
+                }.bind(this));
+                return (
+                        <div>
+                            <label>Languages:</label>
+                            <ul>
+                                {renderedList}
+                            </ul>
+                        </div>
+                );
+            }
+        });
+
+        var Statistics = React.createClass({
+            render: function() {
+                return (
+                        <div>
+                            < Languages />
+                        </div>
+                );
+            }
+        });
+
+        React.render(
+            < Statistics />,
+            document.getElementById('statistics')
         );
 
     </script>
@@ -82,28 +219,64 @@
             return TweetStream;
         })();
 
+        var TweetFilter = (function () {
+            function TweetFilter() {
+                this.listeners = [];
+                this.languageFilter = null;
+            }
+
+            TweetFilter.prototype.addListener = function addListener(cb) {
+                this.listeners.push(cb);
+            };
+
+            TweetFilter.prototype.dispatchEvent = function dispatchEvent(message, data) {
+                this.listeners.forEach(function(cb) {
+                    cb(message, data);
+                });
+            };
+
+            TweetFilter.prototype.setLanguageFilter = function(languageCode) {
+                this.languageFilter = languageCode;
+                this.dispatchEvent('languageFilterChange', this.languageFilter);
+            };
+
+            TweetFilter.prototype.tweetMatchesFilter = function(tweet) {
+                if (this.languageFilter !== null ) {
+                    return tweet.lang === this.languageFilter;
+                } else {
+                    return true;
+                }
+            };
+
+            return TweetFilter;
+        })();
+
+        var tweetFilter = new TweetFilter();
 
         var tweetStream = new TweetStream(location.origin.replace(/^http/, 'ws'));
 
+        function tweetRateUpdater() {
+            var tweetRate = document.getElementById('tweetRate');
+
+            tweetRate.addEventListener('change', function onTweetRateChange(e) {
+
+                var tweetRateOutput = document.getElementById('tweetRateOutput');
+                tweetRateOutput.value = e.currentTarget.value;
+                tweetStream.send(
+                        JSON.stringify(
+                                {
+                                    type: 'rate',
+                                    rate: tweetRateOutput.value
+                                }
+                        )
+                );
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
-            (function tweetRateUpdater() {
-                var tweetRate = document.getElementById('tweetRate');
-
-                tweetRate.addEventListener('change', function onTweetRateChange(e) {
-
-                    var tweetRateOutput = document.getElementById('tweetRateOutput');
-                    tweetRateOutput.value = e.currentTarget.value;
-                    tweetStream.send(
-                            JSON.stringify(
-                                    {
-                                        type: 'rate',
-                                        rate: tweetRateOutput.value
-                                    }
-                            )
-                    );
-                });
-            })();
+            tweetRateUpdater();
         });
+
     </script>
 </head>
 <body>
@@ -113,10 +286,13 @@
         <output for='tweetRate' id='tweetRateOutput'>1</output>
     </div>
 
-    <section class="tweetsContainer">
-        <ul id="tweets-pre">
-
+    <section id="tweetsContainer">
+        <ul id="tweets">
+            <li class="tweet">
+            </li>
         </ul>
+    </section>
+    <section class="statistics" id="statistics">
     </section>
 </body>
 </html>
