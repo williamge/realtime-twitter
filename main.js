@@ -4,6 +4,7 @@ var WSS = require('ws').Server,
     http = require('http'),
     express = require('express'),
     app = express(),
+    routes = require('./routes'),
     port = process.env.PORT || 5000;
 
 var crypto = require('crypto');
@@ -27,6 +28,8 @@ app.use(function(err, req, res, next) {
         error: {}
     });
 });
+
+app.get('/stylesheets/style.css', routes.stylesheet);
 
 var server = http.createServer(app);
 server.listen(port);

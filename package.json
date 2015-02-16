@@ -9,6 +9,7 @@
     "start": "node ./main.js"
   },
   "dependencies": {
+    "stylus": "^0.50.0",
     "ws": "^0.7.1"
   },
   "devDependencies": {
