@@ -1,8 +1,16 @@
-bgColour = #193441
-strongColour = #91AA9D
-highlightColour = #D1DBBD
-brightColour = #FCFFF5
-weakColour = #3E606F
+bgColour = hsl(200, 44%, 18%)
+strongColour = hsl(149, 13%, 62%)
+highlightColour = hsl(80, 29%, 80%)
+brightColour = hsl(78, 100%, 98%)
+weakColour = hsl(198, 28%, 34%)
+
+background-linear-gradient(startPoint, startColour, endColour)
+  background -webkit-linear-gradient(startPoint, startColour, endColour)
+  background -moz-linear-gradient(startPoint, startColour, endColour)
+  background -ms-linear-gradient(startPoint, startColour, endColour)
+  background -o-linear-gradient(startPoint, startColour, endColour)
+  background linear-gradient(startPoint, startColour, endColour)
+
 
 body {
     padding: 50px;
@@ -11,7 +19,7 @@ body {
 }
 
 a {
-    color: #00B7FF;
+    color: weakColour;
 }
 
 #tweets {
@@ -32,13 +40,13 @@ a {
 
     min-height: 5.5em;
 
-    background: -webkit-linear-gradient(top, #9fb8ab, strongColour);
+    background-linear-gradient(top, strongColour +  10%, strongColour);
     box-shadow: inset 0px 2px 18px -9px black
 }
 
 #tweetSettings {
-    background-color: strongColour;
-    background: -webkit-linear-gradient(top,#4E707F, weakColour);
+    background-color: weakColour;
+    background-linear-gradient(top,weakColour + 10%, weakColour);
     box-shadow: inset 0px 1px 5px 0px black;
     padding: 1.5em;
     color: strongColour;
@@ -48,7 +56,7 @@ a {
     float: left;
     width: 50%;
 
-    background: -webkit-linear-gradient(top,#a1bAaD, #819A8d);
+    background-linear-gradient(top, strongColour + 10%, strongColour - 10%);
     box-shadow: inset 0px 2px 18px -9px black
 }
 
