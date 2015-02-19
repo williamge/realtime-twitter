@@ -16,6 +16,7 @@ body {
     padding: 50px;
     font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
     background-color: bgColour;
+    line-height: 1.4em;
 }
 
 a {
@@ -65,10 +66,20 @@ a {
 
     min-height: 10em
 
+ul.languages
+    list-style: none
+    padding: 1.5em
+    margin: 0
+
+.language, .language-active {
+    background: url(/images/weakColourPixel.png) no-repeat scroll
+    color: hsl(80, 29%, 80%)
+    padding: 0.3em
+}
 
 li.language:hover
-  background-color strongColour
+    background-color strongColour - 20%
 
 li.language-active
-  background-color strongColour
-  font-weight: bold
+    background-color strongColour
+    font-weight: bold

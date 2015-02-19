@@ -2,6 +2,7 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Language" content="en" />
     <title>A REALTIME TWITTER THING</title>
 
     <script src="http://fb.me/react-0.12.2.min.js"></script>
@@ -114,8 +115,11 @@
             },
             render: function() {
                 var classText = this.props.active ? 'language-active' : 'language';
+                var style = {
+                    'background-size': this.props.mwidth.toString() + 'px 100%'
+                };
                 return (
-                        <li onClick={this.setLanguage} className={classText}>
+                        <li onClick={this.setLanguage} className={classText} style={style}>
                             <span>{this.props.language}:</span>
                             <span>{this.props.count}</span>
                         </li>
@@ -129,8 +133,12 @@
                     languages: {},
                     tweetStream: tweetStream,
                     tweetFilter: tweetFilter,
-                    activeLanguage: ''
+                    activeLanguage: '',
+                    myWidth: 0
                 };
+            },
+            updateDimensions: function() {
+                this.setState({myWidth: this.getDOMNode().offsetWidth});
             },
             componentDidMount: function() {
                 this.state.tweetStream.addListener(function(tweet){
@@ -139,7 +147,7 @@
                     languages.forEach(function(language) {
                         oldLanguages[language] = (oldLanguages[language] || 0) + 1
                     });
-                    this.setState({languages: oldLanguages});
+                    this.setState({languages: oldLanguages, myWidth: this.getDOMNode().offsetWidth});
                 }.bind(this));
 
                 this.state.tweetFilter.addListener(function(message, data){
@@ -147,6 +155,11 @@
                         this.setState({activeLanguage: data});
                     }
                 }.bind(this));
+
+                window.addEventListener('resize', this.updateDimensions);
+            },
+            componentWillUnmount: function() {
+                window.removeEventListener('resize', this.updateDimensions);
             },
             render: function() {
                 var languages = this.state.languages;
@@ -156,16 +169,22 @@
                     return b[1] - a[1];
                 }).slice(0, 14);
 
+                var languageSum = languagesList.reduce(function(sum, language) {
+                    return sum + language[1];
+                }.bind(this), 0);
+
                 var renderedList = languagesList.map(function(tag) {
                     var isActive = this.state.activeLanguage === tag[0];
+                    var myWidth = this.state.myWidth;
+                    var childWidth = (( tag[1] / languageSum) * myWidth ) || 0;
                     return (
-                            <LanguageItem language={tag[0]} count={tag[1]} active={isActive} />
+                            <LanguageItem language={tag[0]} count={tag[1]} active={isActive} mwidth={childWidth}/>
                     ) ;
                 }.bind(this));
                 return (
                         <div>
                             <label>Languages:</label>
-                            <ul>
+                            <ul className="languages">
                                 {renderedList}
                             </ul>
                         </div>
