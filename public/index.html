@@ -65,46 +65,99 @@
             document.getElementById('tweetsContainer')
         );
 
+        var widthMixins = {
+            getInitialState: function () {
+                return {
+                    myWidth: 0
+                };
+            },
+            updateDimensions: function () {
+                this.setState({myWidth: this.getDOMNode().offsetWidth});
+            },
+            componentDidMount: function () {
+                this.updateDimensions();
+                window.addEventListener('resize', this.updateDimensions);
+            },
+            componentWillUnmount: function () {
+                window.removeEventListener('resize', this.updateDimensions);
+            }
+        };
+
+        var statisticsMixin = {
+            getInitialState: function () {
+                return {
+                    contents: {}
+                };
+            },
+            getChildWidth: function(count, sum, width) {
+                return (( count / sum) * width ) || 0;
+            },
+            getInfoForRender: function(contents) {
+                var contentsList = Object.keys(contents).map(function (contentName) {
+                    return [contentName, contents[contentName]];
+                }).sort(function (a, b) {
+                    return b[1] - a[1];
+                }).slice(0, 14);
+
+                var contentsSum = contentsList.reduce(function (sum, content) {
+                    return sum + content[1];
+                }, 0);
+
+                return {
+                    list: contentsList,
+                    sum: contentsSum
+                };
+            }
+        };
+
         var Tags = React.createClass({
+            mixins: [statisticsMixin, widthMixins],
             getInitialState: function() {
                 return {
-                    tags: {},
-                    tweetStream: tweetStream
+                    tweetStream: tweetStream,
+                    tweetFilter: tweetFilter
                 };
             },
             componentDidMount: function() {
                 this.state.tweetStream.addListener(function(tweet){
-                    var oldTags = this.state.tags;
+                    var oldTags = this.state.contents;
                     var tags = tweet.entities.hashtags;
                     tags.forEach(function(tag) {
                         oldTags[tag.text] = (oldTags[tag.text] || 0) + 1
                     });
-                    this.setState({tags: oldTags});
+                    this.setState({contents: oldTags});
                 }.bind(this));
             },
             render: function() {
-                var tags = this.state.tags;
-                var tagsList = Object.keys(tags).map(function(tagName) {
-                    return [tagName, tags[tagName]];
-                }).sort(function(a, b) {
-                    return b[1] - a[1];
-                }).slice(0, 14);
-
-                var renderedList = tagsList.map(function(tag) {
-                   return (
-                           <li>
-                                   <span>{'#' + tag[0]}:</span>
-                                   <span>{tag[1]}</span>
-                           </li>
-                   ) ;
-                });
+                var info = this.getInfoForRender(this.state.contents);
+                var renderedList = info.list.map(function(tag) {
+                    var childWidth = this.getChildWidth(tag[1], info.sum, this.state.myWidth);
+                    return (
+                            <TagsItem tag={tag[0]} count={tag[1]} active={false} mwidth={childWidth}/>
+                    );
+                }.bind(this));
                 return (
-                    <div>
-                        <label>Tags:</label>
+                        <div>
+                            <label>Tags:</label>
                             <ul>
                                 {renderedList}
                             </ul>
-                    </div>
+                        </div>
+                );
+            }
+        });
+
+        var TagsItem = React.createClass({
+            render: function() {
+                var classText = this.props.active ? 'tags-active' : 'tags';
+                var style = {
+                    'background-size': this.props.mwidth.toString() + 'px 100%'
+                };
+                return (
+                        <li className={classText} style={style}>
+                            <span>{this.props.tag}:</span>
+                            <span>{this.props.count}</span>
+                        </li>
                 );
             }
         });
@@ -128,58 +181,39 @@
         });
 
         var Languages = React.createClass({
-            getInitialState: function() {
+            mixins: [statisticsMixin, widthMixins],
+            getInitialState: function () {
                 return {
-                    languages: {},
                     tweetStream: tweetStream,
-                    tweetFilter: tweetFilter,
-                    activeLanguage: '',
-                    myWidth: 0
+                    tweetFilter: tweetFilter
                 };
             },
-            updateDimensions: function() {
-                this.setState({myWidth: this.getDOMNode().offsetWidth});
+            componentDidMount: function () {
+                this.state.tweetStream.addListener(
+                        function (tweet) {
+                            var oldContents = this.state.contents;
+                            var contents = [tweet.lang];
+                            contents.forEach(function (content) {
+                                oldContents[content] = (oldContents[content] || 0) + 1
+                            });
+                            this.setState({contents: oldContents});
+                        }.bind(this));
+
+                this.state.tweetFilter.addListener(
+                        function (message, data) {
+                            if (message === 'languageFilterChange') {
+                                this.setState({activeLanguage: data});
+                            }
+                        }.bind(this));
             },
-            componentDidMount: function() {
-                this.state.tweetStream.addListener(function(tweet){
-                    var oldLanguages = this.state.languages;
-                    var languages = [tweet.lang];
-                    languages.forEach(function(language) {
-                        oldLanguages[language] = (oldLanguages[language] || 0) + 1
-                    });
-                    this.setState({languages: oldLanguages, myWidth: this.getDOMNode().offsetWidth});
-                }.bind(this));
-
-                this.state.tweetFilter.addListener(function(message, data){
-                    if (message === 'languageFilterChange') {
-                        this.setState({activeLanguage: data});
-                    }
-                }.bind(this));
-
-                window.addEventListener('resize', this.updateDimensions);
-            },
-            componentWillUnmount: function() {
-                window.removeEventListener('resize', this.updateDimensions);
-            },
-            render: function() {
-                var languages = this.state.languages;
-                var languagesList = Object.keys(languages).map(function(languageName) {
-                    return [languageName, languages[languageName]];
-                }).sort(function(a, b) {
-                    return b[1] - a[1];
-                }).slice(0, 14);
-
-                var languageSum = languagesList.reduce(function(sum, language) {
-                    return sum + language[1];
-                }.bind(this), 0);
-
-                var renderedList = languagesList.map(function(tag) {
+            render: function () {
+                var info =  this.getInfoForRender(this.state.contents);
+                var renderedList = info.list.map(function (tag) {
                     var isActive = this.state.activeLanguage === tag[0];
-                    var myWidth = this.state.myWidth;
-                    var childWidth = (( tag[1] / languageSum) * myWidth ) || 0;
+                    var childWidth = this.getChildWidth(tag[1], info.sum, this.state.myWidth);
                     return (
                             <LanguageItem language={tag[0]} count={tag[1]} active={isActive} mwidth={childWidth}/>
-                    ) ;
+                    );
                 }.bind(this));
                 return (
                         <div>
@@ -196,6 +230,7 @@
             render: function() {
                 return (
                         <div>
+                            <Tags/>
                             < Languages />
                         </div>
                 );

@@ -71,15 +71,19 @@ ul.languages
     padding: 1.5em
     margin: 0
 
-.language, .language-active {
-    background: url(/images/weakColourPixel.png) no-repeat scroll
-    color: hsl(80, 29%, 80%)
-    padding: 0.3em
+statistics-element-background()
+  background: url(/images/weakColourPixel.png) no-repeat scroll
+  color: hsl(80, 29%, 80%)
+  padding: 0.3em
+
+
+.language, .language-active, .tags, .tags-active {
+  statistics-element-background()
 }
 
-li.language:hover
+li.language:hover, .tags:hover
     background-color strongColour - 20%
 
-li.language-active
+li.language-active, .tags-active
     background-color strongColour
     font-weight: bold
