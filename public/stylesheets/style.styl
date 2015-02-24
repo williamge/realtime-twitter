@@ -66,7 +66,7 @@ a {
 
     min-height: 10em
 
-ul.languages
+ul.languages, .tags
     list-style: none
     padding: 1.5em
     margin: 0
@@ -77,13 +77,22 @@ statistics-element-background()
   padding: 0.3em
 
 
-.language, .language-active, .tags, .tags-active {
+.language, .language-active, .tag, .tag-active {
   statistics-element-background()
 }
 
-li.language:hover, .tags:hover
+li.language:hover, .tag:hover
     background-color strongColour - 20%
 
-li.language-active, .tags-active
+li.language-active, .tag-active
     background-color strongColour
     font-weight: bold
+
+.animFadeIn-enter {
+  opacity: 0.01;
+  transition: opacity .25s ease-in;
+}
+
+.animFadeIn-enter.animFadeIn-enter-active {
+  opacity: 1;
+}

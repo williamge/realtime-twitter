@@ -5,12 +5,14 @@
     <meta http-equiv="Content-Language" content="en" />
     <title>A REALTIME TWITTER THING</title>
 
-    <script src="http://fb.me/react-0.12.2.min.js"></script>
+    <script src="http://fb.me/react-with-addons-0.12.2.js"></script>
     <script src="http://fb.me/JSXTransformer-0.12.2.js"></script>
 
 
     <link rel="stylesheet" type="text/css" href="stylesheets/style.css"/>
     <script type="text/jsx">
+
+        var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
 
 
         var Tweets = React.createClass({
@@ -43,7 +45,7 @@
                     }
                     if (this.state.tweetFilter.tweetMatchesFilter(tweet)) {
                         tweets.push(
-                                <li className="tweet">
+                                <li className="tweet" key={tweet.id_str}>
                                     <img src={tweet.user.profile_image_url} />
                                     <span>{tweet.user.name} - </span>
                                     <a href={ "https://twitter.com/" + tweet.user.screen_name}>@{tweet.user.screen_name}</a>
@@ -54,7 +56,9 @@
                 }.bind(this));
                 return (
                     <ul id="tweets">
+                        <ReactCSSTransitionGroup transitionName="animFadeIn">
                         {tweets}
+                        </ReactCSSTransitionGroup>
                     </ul>
                 );
             }
@@ -107,6 +111,22 @@
                     list: contentsList,
                     sum: contentsSum
                 };
+            },
+            getListForRender: function(contents) {
+                var contentsList = Object.keys(contents).map(function (contentName) {
+                    return [contentName, contents[contentName]];
+                }).sort(function (a, b) {
+                    return b[1] - a[1];
+                }).slice(0, 14);
+
+                return contentsList;
+            },
+            getSum: function(contents) {
+                var contentsSum = contents.reduce(function (sum, content) {
+                    return sum + content[1];
+                }, 0);
+
+                return contentsSum;
             }
         };
 
@@ -129,17 +149,23 @@
                 }.bind(this));
             },
             render: function() {
-                var info = this.getInfoForRender(this.state.contents);
-                var renderedList = info.list.map(function(tag) {
-                    var childWidth = this.getChildWidth(tag[1], info.sum, this.state.myWidth);
+                var sortedList = this.getListForRender(this.state.contents);
+                var sumOfList = this.getSum(sortedList);
+                var renderedList = sortedList.map(function(tag) {
+                    var childWidth = this.getChildWidth(tag[1], sumOfList, this.state.myWidth);
                     return (
-                            <TagsItem tag={tag[0]} count={tag[1]} active={false} mwidth={childWidth}/>
+                            <TagsItem key={tag[0]} tag={tag[0]} count={tag[1]} active={false} mwidth={childWidth}/>
                     );
                 }.bind(this));
+                if (renderedList.length === 0 ) {
+                    renderedList.push(
+                            <li><span>No Tags to show yet</span></li>
+                    )
+                }
                 return (
                         <div>
                             <label>Tags:</label>
-                            <ul>
+                            <ul  className="tags">
                                 {renderedList}
                             </ul>
                         </div>
@@ -149,9 +175,9 @@
 
         var TagsItem = React.createClass({
             render: function() {
-                var classText = this.props.active ? 'tags-active' : 'tags';
+                var classText = this.props.active ? 'tag-active' : 'tag';
                 var style = {
-                    'background-size': this.props.mwidth.toString() + 'px 100%'
+                    'backgroundSize': this.props.mwidth.toString() + 'px 100%'
                 };
                 return (
                         <li className={classText} style={style}>
@@ -169,7 +195,7 @@
             render: function() {
                 var classText = this.props.active ? 'language-active' : 'language';
                 var style = {
-                    'background-size': this.props.mwidth.toString() + 'px 100%'
+                    'backgroundSize': this.props.mwidth.toString() + 'px 100%'
                 };
                 return (
                         <li onClick={this.setLanguage} className={classText} style={style}>
@@ -191,12 +217,12 @@
             componentDidMount: function () {
                 this.state.tweetStream.addListener(
                         function (tweet) {
-                            var oldContents = this.state.contents;
-                            var contents = [tweet.lang];
-                            contents.forEach(function (content) {
-                                oldContents[content] = (oldContents[content] || 0) + 1
+                            var contents = this.state.contents;
+                            var newContents = [tweet.lang];
+                            newContents.forEach(function (content) {
+                                contents[content] = (contents[content] || 0) + 1
                             });
-                            this.setState({contents: oldContents});
+                            this.setState({contents: contents});
                         }.bind(this));
 
                 this.state.tweetFilter.addListener(
@@ -207,14 +233,20 @@
                         }.bind(this));
             },
             render: function () {
-                var info =  this.getInfoForRender(this.state.contents);
-                var renderedList = info.list.map(function (tag) {
+                var sortedList = this.getListForRender(this.state.contents);
+                var sumOfList = this.getSum(sortedList);
+                var renderedList = sortedList.map(function (tag) {
                     var isActive = this.state.activeLanguage === tag[0];
-                    var childWidth = this.getChildWidth(tag[1], info.sum, this.state.myWidth);
+                    var childWidth = this.getChildWidth(tag[1], sumOfList, this.state.myWidth);
                     return (
-                            <LanguageItem language={tag[0]} count={tag[1]} active={isActive} mwidth={childWidth}/>
+                            <LanguageItem  key={tag[0]} language={tag[0]} count={tag[1]} active={isActive} mwidth={childWidth}/>
                     );
                 }.bind(this));
+                if (renderedList.length === 0 ) {
+                    renderedList.push(
+                            <li><span>No languages to show yet</span></li>
+                    )
+                }
                 return (
                         <div>
                             <label>Languages:</label>
@@ -230,8 +262,8 @@
             render: function() {
                 return (
                         <div>
-                            <Tags/>
                             < Languages />
+                            <Tags/>
                         </div>
                 );
             }
