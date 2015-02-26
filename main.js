@@ -7,6 +7,9 @@ var WSS = require('ws').Server,
     routes = require('./routes'),
     port = process.env.PORT || 5000;
 
+var webpack = require('webpack'),
+    webpackMiddleware = require("webpack-dev-middleware");
+
 var crypto = require('crypto');
 
 app.use(express.static(__dirname + '/public'));
@@ -28,6 +31,26 @@ app.use(function(err, req, res, next) {
         error: {}
     });
 });
+
+app.use(webpackMiddleware(webpack({
+        context: __dirname + '/public/javascript',
+        entry: __dirname + '/public/javascript/entry.js',
+        output: {
+            path: '/'
+        },
+        'module': {
+            loaders: [
+                { test: /\.js(x)?$/, exclude: /node_modules/, loader: 'babel-loader'}
+            ]
+        },
+        externals: {
+            "react": "React",
+            "react/addons" : "React"
+        }
+    }
+), {
+    publicPath: '/javascript/compiled/'
+}));
 
 app.get('/stylesheets/style.css', routes.stylesheet);
 

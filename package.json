@@ -9,7 +9,11 @@
     "start": "node ./main.js"
   },
   "dependencies": {
+    "babel-core": "^4.4.6",
+    "babel-loader": "^4.0.0",
     "stylus": "^0.50.0",
+    "webpack": "^1.6.0",
+    "webpack-dev-middleware": "^1.0.11",
     "ws": "^0.7.1"
   },
   "devDependencies": {

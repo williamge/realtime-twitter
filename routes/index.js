@@ -37,7 +37,6 @@ function getCompiledSheet(uncompiledPromise) {
 
 
 
-
 module.exports = {
     stylesheet: function(req, res) {
         getCompiledSheet(getUncompiledSheet()).then(
