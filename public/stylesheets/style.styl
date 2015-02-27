@@ -24,13 +24,15 @@ a {
 }
 
 #tweets {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+    padding: 0
+    margin: 0
+    position: relative
 }
 
 #tweets ul {
+    list-style: none;
     padding: 0;
+    margin: 0
 }
 
 .tweet {
@@ -104,4 +106,16 @@ li.language-active, .tag-active
 
 .animFadeIn-leave.animFadeIn-leave-active {
   opacity: 1;
+}
+
+
+.frozen-tweets-box {
+    position: absolute
+    width: 100%
+    background-color: strongColour - 20%
+    border: 1px solid strongColour - 30%
+    opacity: 0.85
+    line-height: 2.5em
+    text-align: center
+    box-shadow: 0px 2px 18px -6px black
 }

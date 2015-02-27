@@ -19,13 +19,15 @@ module.exports = React.createClass({
     },
     getInitialState: function () {
         return {
-            tweets: []
+            tweets: [],
+            tweetsToRender: [],
+            frozen: false
         };
     },
     componentDidMount: function () {
         this.props.tweetModel.addListener((message) => {
             if (message === TweetModel.messageTypes.newTweet) {
-                this.setState({tweets: this.props.tweetModel.getTweets()});
+                this.newTweet();
             }
         });
 
@@ -36,32 +38,57 @@ module.exports = React.createClass({
             }
         }.bind(this));
     },
+    mouseEnterHandler: function() {
+        this.setState({frozen: true});
+    },
+    mouseLeaveHandler: function() {
+        this.setState({frozen: false});
+    },
+    newTweet: function() {
+        this.setState({tweets: this.props.tweetModel.getTweets()});
+        if (!this.state.frozen) {
+            let tweets = [];
+            let matchedTweets = 0;
+            this.state.tweets.some((tweet) => {
+                if (matchedTweets >= 20) {
+                    return true;
+                }
+                if (this.props.tweetFilter.tweetMatchesFilter(tweet)) {
+                    tweets.push(tweet);
+                    matchedTweets++;
+                }
+
+            });
+            this.setState({tweetsToRender: tweets});
+        }
+    },
     render: function () {
-        var tweets = [];
-        var matchedTweets = 0;
-        this.state.tweets.some(function (tweet) {
-            if (matchedTweets >= 20) {
-                return true;
-            }
-            if (this.props.tweetFilter.tweetMatchesFilter(tweet)) {
-                tweets.push(
+        const tweets = this.state.tweetsToRender.map( (tweet) => {
+                return (
                     <li className="tweet" key={tweet.id_str}>
                         <img src={tweet.user.profile_image_url} />
                         <span>{tweet.user.name} - </span>
                         <a href={ "https://twitter.com/" + tweet.user.screen_name}>@{tweet.user.screen_name}</a>
                         <p>{tweet.text}</p>
                     </li>
-                );
-                matchedTweets++;
-            }
+                )
+        });
 
-        }.bind(this));
+        const hoverDisplay = this.state.frozen ? (
+            <div className='frozen-tweets-box' >
+                { this.state.tweets.length -  this.state.tweetsToRender.length} new tweets
+            </div>
+        ) : null;
+
         return (
-            <ul id="tweets">
-                <TimeoutTransitionGroup transitionName='animFadeIn' enterTimeout={250} leaveTimeout={250} >
-                    {tweets}
-                </TimeoutTransitionGroup>
-            </ul>
+            <div id="tweets" onMouseEnter={this.mouseEnterHandler} onMouseLeave={this.mouseLeaveHandler} >
+                {hoverDisplay}
+                <ul >
+                    <TimeoutTransitionGroup transitionName='animFadeIn' enterTimeout={250} leaveTimeout={250} >
+                        {tweets}
+                    </TimeoutTransitionGroup>
+                </ul>
+            </div>
         );
     }
 });
