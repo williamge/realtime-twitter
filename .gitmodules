@@ -1,0 +1,3 @@
+[submodule "public/javascript/KhanReactComponents"]
+	path = public/javascript/KhanReactComponents
+	url = https://github.com/Khan/react-components.git

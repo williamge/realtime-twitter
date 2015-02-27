@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var tweetStream = new TweetStream(location.origin.replace(/^http/, 'ws'));
 
     tweetRateUpdater(tweetStream);
-    
+
     var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
 
     var tweetModel = new TweetModel(tweetStream);

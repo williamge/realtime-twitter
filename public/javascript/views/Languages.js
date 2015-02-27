@@ -4,8 +4,11 @@ var React = require('react'),
 var TweetModel = require('../TweetModel');
 
 var LanguageItem = React.createClass({
+    propTypes: {
+        tweetFilter: React.PropTypes.object.isRequired
+    },
     setLanguage: function() {
-        tweetFilter.setLanguageFilter(this.props.language);
+        this.props.tweetFilter.setLanguageFilter(this.props.language);
     },
     render: function() {
         var classText = this.props.active ? 'language-active' : 'language';
@@ -54,7 +57,7 @@ module.exports = React.createClass({
             var isActive = this.state.activeLanguage === tag[0];
             var childWidth = this.getChildWidth(tag[1], sumOfList, this.state.myWidth);
             return (
-                <LanguageItem  key={tag[0]} language={tag[0]} count={tag[1]} active={isActive} mwidth={childWidth}/>
+                <LanguageItem  key={tag[0]} language={tag[0]} count={tag[1]} active={isActive} mwidth={childWidth} tweetFilter={this.props.tweetFilter}/>
             );
         });
         if (renderedList.length === 0 ) {

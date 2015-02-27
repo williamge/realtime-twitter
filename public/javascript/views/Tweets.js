@@ -4,7 +4,10 @@ var React = require('react');
 
 React.addons = require('react/addons').addons;
 
-var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
+//TODO: when this addon actually starts working again I should start using it again
+//var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
+
+const TimeoutTransitionGroup = require('../KhanReactComponents/js/timeout-transition-group.jsx');
 
 var TweetModel = require('../TweetModel');
 
@@ -55,9 +58,9 @@ module.exports = React.createClass({
         }.bind(this));
         return (
             <ul id="tweets">
-                <ReactCSSTransitionGroup transitionName="animFadeIn">
+                <TimeoutTransitionGroup transitionName='animFadeIn' enterTimeout={250} leaveTimeout={250} >
                     {tweets}
-                </ReactCSSTransitionGroup>
+                </TimeoutTransitionGroup>
             </ul>
         );
     }
