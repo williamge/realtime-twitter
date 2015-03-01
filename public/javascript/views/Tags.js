@@ -35,6 +35,9 @@ module.exports = React.createClass({
         tweetModel: React.PropTypes.object.isRequired,
         tweetFilter: React.PropTypes.object.isRequired
     },
+    removeFilter: function() {
+        this.props.tweetFilter.removeFilter();
+    },
     componentDidMount: function () {
         this.props.tweetModel.addListener(
             (message, tweet) => {
@@ -69,9 +72,15 @@ module.exports = React.createClass({
                 </li>
             )
         }
+        let removeFilter = null;
+        if (this.props.tweetFilter.filter instanceof TweetFilter.types.tag) {
+            removeFilter = (
+                <button className="remove-filter-button" onClick={this.removeFilter} >Remove filter</button>
+            )
+        }
         return (
             <div>
-                <label>Tags:</label>
+                <label>Tags:</label>  {removeFilter}
                 <ul  className="tags">
                     <TimeoutTransitionGroup transitionName='animFadeIn' enterTimeout={250} leaveTimeout={250} >
                         {renderedList}

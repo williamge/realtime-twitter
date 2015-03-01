@@ -93,7 +93,7 @@ ul.languages, .tags
 
 statistics-element-background()
   background: url(/images/weakColourPixel.png) no-repeat scroll
-  color: hsl(80, 29%, 80%)
+  color: highlightColour
   padding: 0.3em
 
 
@@ -137,3 +137,19 @@ li.language-active, .tag-active
     text-align: center
     box-shadow: 0px 2px 18px -6px black
 }
+
+remove-filter-button-base(backColour, textColour = highlightColour)
+  background-linear-gradient(top, backColour + 5%, backColour);
+  border: 1px solid backColour - 10%
+  box-shadow: 0px 2px 7px -2px backColour - 30%
+  color: textColour
+
+.remove-filter-button
+  remove-filter-button-base(weakColour)
+
+
+.remove-filter-button:hover
+  remove-filter-button-base(weakColour + 10%)
+
+.remove-filter-button:active
+  remove-filter-button-base(weakColour - 20%)
