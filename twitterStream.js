@@ -1,6 +1,6 @@
 "use strict";
 
-var https = require('https'),
+const https = require('https'),
     oauth = require('./oauth'),
     events = require('events');
 
@@ -57,24 +57,23 @@ function initiateTwitterStream(consumerSecret, accessSecret, consumerKey, access
 
 function twitterStream() {
 
-    var connectedToAPIStream = false;
+    let connectedToAPIStream = false;
 
-    var req;
+    let req;
 
-    var self = this;
+    const self = this;
 
     function makeDataReceived() {
-        var counter = 0;
-        var body = '';
+        let body = '';
 
         return function dataReceived(d) {
-            counter++;
             body += d.toString();
             //TODO: consider throwing this to unimportant logging using winston
             //console.log(d.toString());
 
+            // \r\n signals the end of a chunk send by the Twitter API, as per their specs
             if (body.indexOf('\r\n') != -1) {
-                self.emit('tweet', body);
+                self.emit('tweet', JSON.parse(body));
                 body = '';
             }
         }
@@ -105,11 +104,7 @@ function twitterStream() {
             connectedToAPIStream = false;
         }
     });
-
-    self.emit('tweet', JSON.stringify(new Date()));
 }
-
-
 
 twitterStream.prototype = Object.create(events.EventEmitter.prototype);
 twitterStream.prototype.constructor = twitterStream;
