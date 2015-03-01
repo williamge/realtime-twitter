@@ -3,17 +3,24 @@ const React = require('react'),
 
 const TimeoutTransitionGroup = require('../KhanReactComponents/js/timeout-transition-group.jsx');
 
-const TweetModel = require('../TweetModel');
+const TweetModel = require('../TweetModel'),
+    TweetFilter = require('../TweetFilter');
 
 
 const TagsItem =  React.createClass({
+    propTypes: {
+        tweetFilter: React.PropTypes.object.isRequired
+    },
+    setTag: function() {
+        this.props.tweetFilter.setFilter(TweetFilter.types.tag, this.props.tag);
+    },
     render: function () {
         var classText = this.props.active ? 'tag-active' : 'tag';
         var style = {
             'backgroundSize': this.props.mwidth.toString() + 'px 100%'
         };
         return (
-            <li className={classText} style={style}>
+            <li onClick={this.setTag} className={classText} style={style}>
                 <span>{this.props.tag}:</span>
                 <span>{this.props.count}</span>
             </li>
@@ -25,7 +32,8 @@ const TagsItem =  React.createClass({
 module.exports = React.createClass({
     mixins: [reactMixins.statisticsMixin, reactMixins.widthMixins],
     propTypes: {
-        tweetModel: React.PropTypes.object.isRequired
+        tweetModel: React.PropTypes.object.isRequired,
+        tweetFilter: React.PropTypes.object.isRequired
     },
     componentDidMount: function () {
         this.props.tweetModel.addListener(
@@ -44,10 +52,14 @@ module.exports = React.createClass({
     render: function () {
         var sortedList = this.getListForRender(this.state.contents);
         var sumOfList = this.getSum(sortedList);
-        var renderedList = sortedList.map(function (tag) {
-            var childWidth = this.getChildWidth(tag[1], sumOfList, this.state.myWidth);
+
+        var renderedList = sortedList.map(function (tagTuple) {
+            const {tag, count} = {tag: tagTuple[0], count: tagTuple[1]};
+
+            var isActive = this.props.tweetFilter.isActive(tag);
+            var childWidth = this.getChildWidth(count, sumOfList, this.state.myWidth);
             return (
-                <TagsItem key={tag[0]} tag={tag[0]} count={tag[1]} active={false} mwidth={childWidth}/>
+                <TagsItem key={tag} tag={tag} count={count} active={isActive} mwidth={childWidth} tweetFilter={this.props.tweetFilter} />
             );
         }.bind(this));
         if (renderedList.length === 0) {

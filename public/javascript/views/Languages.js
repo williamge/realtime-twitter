@@ -3,14 +3,15 @@ const React = require('react'),
 
 const TimeoutTransitionGroup = require('../KhanReactComponents/js/timeout-transition-group.jsx');
 
-const TweetModel = require('../TweetModel');
+const TweetModel = require('../TweetModel'),
+    TweetFilter = require('../TweetFilter');
 
 const LanguageItem = React.createClass({
     propTypes: {
         tweetFilter: React.PropTypes.object.isRequired
     },
     setLanguage: function() {
-        this.props.tweetFilter.setLanguageFilter(this.props.language);
+        this.props.tweetFilter.setFilter(TweetFilter.types.language, this.props.language);
     },
     render: function() {
         var classText = this.props.active ? 'language-active' : 'language';
@@ -47,7 +48,7 @@ module.exports = React.createClass({
 
         this.props.tweetFilter.addListener(
             (message, data) => {
-                if (message === 'languageFilterChange') {
+                if (message === TweetFilter.messageTypes.filterChange) {
                     this.setState({activeLanguage: data});
                 }
             });
@@ -55,11 +56,14 @@ module.exports = React.createClass({
     render: function () {
         var sortedList = this.getListForRender(this.state.contents);
         var sumOfList = this.getSum(sortedList);
-        var renderedList = sortedList.map( (tag) => {
-            var isActive = this.state.activeLanguage === tag[0];
-            var childWidth = this.getChildWidth(tag[1], sumOfList, this.state.myWidth);
+
+        var renderedList = sortedList.map( (languageTuple) => {
+            const {language, count} = {language: languageTuple[0], count: languageTuple[1]};
+
+            var isActive = this.props.tweetFilter.isActive(language);
+            var childWidth = this.getChildWidth(count, sumOfList, this.state.myWidth);
             return (
-                <LanguageItem  key={tag[0]} language={tag[0]} count={tag[1]} active={isActive} mwidth={childWidth} tweetFilter={this.props.tweetFilter}/>
+                <LanguageItem  key={language} language={language} count={count} active={isActive} mwidth={childWidth} tweetFilter={this.props.tweetFilter}/>
             );
         });
         if (renderedList.length === 0 ) {

@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return (
                 <div>
                     < Languages  tweetFilter={tweetFilter} tweetModel={tweetModel}  />
-                    <Tags tweetModel={tweetModel} />
+                    < Tags tweetFilter={tweetFilter} tweetModel={tweetModel} />
                 </div>
             );
         }
