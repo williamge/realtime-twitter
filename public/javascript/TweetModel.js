@@ -7,7 +7,7 @@ function TweetModel(tweetStream) {
 }
 
 TweetModel.messageTypes = {
-    newTweet: Symbol('newTweet')
+    newTweet: 'newTweet'
 };
 
 TweetModel.prototype.onNewTweet = function(tweet) {

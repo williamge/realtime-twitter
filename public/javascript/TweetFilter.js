@@ -44,7 +44,7 @@ TweetFilter.types = {
 };
 
 TweetFilter.messageTypes = {
-    filterChange: Symbol('filterChange')
+    filterChange: 'filterChange'
 };
 
 TweetFilter.prototype.setFilter = function (filterType, value) {
