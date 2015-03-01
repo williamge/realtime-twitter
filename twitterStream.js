@@ -77,10 +77,6 @@ function twitterStream() {
                 self.emit('tweet', body);
                 body = '';
             }
-
-            if (counter >= 5000) {
-                req.abort();
-            }
         }
 
     }
