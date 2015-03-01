@@ -1,18 +1,9 @@
+var asEvent = require('./event');
 
 function TweetFilter() {
     this.listeners = [];
     this.languageFilter = null;
 }
-
-TweetFilter.prototype.addListener = function addListener(cb) {
-    this.listeners.push(cb);
-};
-
-TweetFilter.prototype.dispatchEvent = function dispatchEvent(message, data) {
-    this.listeners.forEach(function(cb) {
-        cb(message, data);
-    });
-};
 
 TweetFilter.prototype.setLanguageFilter = function(languageCode) {
     this.languageFilter = languageCode;
@@ -26,5 +17,7 @@ TweetFilter.prototype.tweetMatchesFilter = function(tweet) {
         return true;
     }
 };
+
+asEvent(TweetFilter);
 
 module.exports = TweetFilter;
