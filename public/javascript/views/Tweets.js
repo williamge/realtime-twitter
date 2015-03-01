@@ -29,11 +29,8 @@ module.exports = React.createClass({
             }
         });
 
-        //if performance gets to be a problem, we can just disable this, the tweets will be forcing a state update often enough to make up for not listening to this event
         this.props.tweetFilter.addListener(function (message) {
-            if (message === 'languageFilterChange') {
-                this.forceUpdate();
-            }
+            this.newTweet();
         }.bind(this));
     },
     mouseEnterHandler: function() {

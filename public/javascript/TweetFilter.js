@@ -58,6 +58,7 @@ TweetFilter.prototype.setFilter = function (filterType, value) {
 
 TweetFilter.prototype.removeFilter = function() {
     this.filter = null;
+    this.dispatchEvent(TweetFilter.messageTypes.filterChange, this.filter);
 };
 
 TweetFilter.prototype.isActive = function(value) {
@@ -66,7 +67,7 @@ TweetFilter.prototype.isActive = function(value) {
     } else {
         return this.filter.isActive(value);
     }
-}
+};
 
 TweetFilter.prototype.tweetMatchesFilter = function(tweet) {
     if (!this.filter) {
