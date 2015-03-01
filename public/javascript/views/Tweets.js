@@ -59,9 +59,11 @@ module.exports = React.createClass({
     },
     render: function () {
         const tweets = this.state.tweetsToRender.map( (tweet) => {
+                const tweetPictureWithHTTPS = tweet.user.profile_image_url.replace('http://', 'https://');
+
                 return (
                     <li className="tweet" key={tweet.id_str}>
-                        <img src={tweet.user.profile_image_url} />
+                        <img src={tweetPictureWithHTTPS} />
                         <span>{tweet.user.name} - </span>
                         <a href={ "https://twitter.com/" + tweet.user.screen_name}>@{tweet.user.screen_name}</a>
                         <p>{tweet.text}</p>
