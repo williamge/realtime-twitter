@@ -1,9 +1,11 @@
-var React = require('react'),
+const React = require('react'),
     reactMixins = require('../reactMixins');
 
-var TweetModel = require('../TweetModel');
+const TimeoutTransitionGroup = require('../KhanReactComponents/js/timeout-transition-group.jsx');
 
-var LanguageItem = React.createClass({
+const TweetModel = require('../TweetModel');
+
+const LanguageItem = React.createClass({
     propTypes: {
         tweetFilter: React.PropTypes.object.isRequired
     },
@@ -69,7 +71,9 @@ module.exports = React.createClass({
             <div>
                 <label>Languages:</label>
                 <ul className="languages">
-                            {renderedList}
+                    <TimeoutTransitionGroup transitionName='animFadeIn' enterTimeout={250} leaveTimeout={250} >
+                        {renderedList}
+                    </TimeoutTransitionGroup>
                 </ul>
             </div>
         );

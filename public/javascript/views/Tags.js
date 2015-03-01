@@ -1,9 +1,28 @@
-var React = require('react'),
+const React = require('react'),
     reactMixins = require('../reactMixins');
 
-var TweetModel = require('../TweetModel');
+const TimeoutTransitionGroup = require('../KhanReactComponents/js/timeout-transition-group.jsx');
 
-module.exports =React.createClass({
+const TweetModel = require('../TweetModel');
+
+
+const TagsItem =  React.createClass({
+    render: function () {
+        var classText = this.props.active ? 'tag-active' : 'tag';
+        var style = {
+            'backgroundSize': this.props.mwidth.toString() + 'px 100%'
+        };
+        return (
+            <li className={classText} style={style}>
+                <span>{this.props.tag}:</span>
+                <span>{this.props.count}</span>
+            </li>
+        );
+    }
+});
+
+
+module.exports = React.createClass({
     mixins: [reactMixins.statisticsMixin, reactMixins.widthMixins],
     propTypes: {
         tweetModel: React.PropTypes.object.isRequired
@@ -42,25 +61,11 @@ module.exports =React.createClass({
             <div>
                 <label>Tags:</label>
                 <ul  className="tags">
-                            {renderedList}
+                    <TimeoutTransitionGroup transitionName='animFadeIn' enterTimeout={250} leaveTimeout={250} >
+                        {renderedList}
+                    </TimeoutTransitionGroup>
                 </ul>
             </div>
-        );
-    }
-});
-
-
-var TagsItem =  React.createClass({
-    render: function () {
-        var classText = this.props.active ? 'tag-active' : 'tag';
-        var style = {
-            'backgroundSize': this.props.mwidth.toString() + 'px 100%'
-        };
-        return (
-            <li className={classText} style={style}>
-                <span>{this.props.tag}:</span>
-                <span>{this.props.count}</span>
-            </li>
         );
     }
 });

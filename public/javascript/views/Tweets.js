@@ -1,15 +1,13 @@
 "use strict";
 
-var React = require('react');
-
-React.addons = require('react/addons').addons;
+const React = require('react');
 
 //TODO: when this addon actually starts working again I should start using it again
 //var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
 
 const TimeoutTransitionGroup = require('../KhanReactComponents/js/timeout-transition-group.jsx');
 
-var TweetModel = require('../TweetModel');
+const TweetModel = require('../TweetModel');
 
 
 module.exports = React.createClass({

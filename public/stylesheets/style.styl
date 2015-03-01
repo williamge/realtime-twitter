@@ -11,6 +11,8 @@ background-linear-gradient(startPoint, startColour, endColour)
   background -o-linear-gradient(startPoint, startColour, endColour)
   background linear-gradient(startPoint, startColour, endColour)
 
+container-max-width = 967
+
 
 body {
     padding: 50px;
@@ -35,17 +37,26 @@ a {
     margin: 0
 }
 
+tweet-background(colour)
+    background-color: colour;
+    background-linear-gradient(top, colour +  10%, colour);
+
 .tweet {
-    background-color: strongColour;
+
     border: 1px solid #859C90;
     line-height: 1.25em;
     padding: 0.4em;
 
     min-height: 5.5em;
+    tweet-background(strongColour)
 
-    background-linear-gradient(top, strongColour +  10%, strongColour);
     box-shadow: inset 0px 2px 18px -9px black
 }
+
+.tweet:hover
+  tweet-background(strongColour + 20%)
+
+
 
 #tweetSettings {
     background-color: weakColour;
@@ -54,6 +65,13 @@ a {
     padding: 1.5em;
     color: strongColour;
 }
+
+#tweetsContainer, .statistics
+    max-width: container-max-width px
+
+.mainContainer
+    max-width: container-max-width * 2 px
+    margin: 0 auto
 
 #tweetsContainer, .statistics {
     float: left;
