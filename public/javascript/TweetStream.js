@@ -1,4 +1,10 @@
-
+//TODO: correct this documentation when moving to mixin
+/**
+ * Class for interfacing with server over websocket connection. Will connect to the websocket server at wsURL and send tweets out to
+ * any attached listeners upon arrival. Observable over own implementation of events.
+ * @param wsURL
+ * @constructor
+ */
 function TweetStream (wsURL) {
     this.ws = new WebSocket(wsURL);
 
@@ -12,11 +18,18 @@ function TweetStream (wsURL) {
     }.bind(this);
 }
 
+//TODO: mixin
 TweetStream.prototype.addListener = function addListener(cb) {
     this.listeners.push(cb);
 };
 
+/**
+ * Sends a message through connected web socket
+ * @param message Message identifier to be sent
+ * @param value Value to be sent alongside message
+ */
 TweetStream.prototype.send = function(message, value) {
+    //TODO: is value even used on server?
     this.ws.send(message, value);
 };
 

@@ -17,7 +17,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var tweetFilter = new TweetFilter();
     var tweetStream = new TweetStream(location.origin.replace(/^http/, 'ws'));
 
-    tweetRateUpdater(tweetStream);
+    var tweetRate = document.getElementById('tweetRate');
+    tweetRate.addEventListener('change', tweetRateUpdater(tweetStream, document.getElementById('tweetRateOutput')));
 
     var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
 
@@ -47,13 +48,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 
-function tweetRateUpdater(tweetStream) {
-    var tweetRate = document.getElementById('tweetRate');
+/**
+ * Returns an onchange listener to send an updated tweet rate value back to the given tweetStream, and will update the label
+ * for the DOM node.
+ * @param tweetStream
+ * @param node node to update label for
+ * @returns {Function} onchange listener
+ */
+function tweetRateUpdater(tweetStream, node) {
+    return function onTweetRateChange(e) {
 
-    tweetRate.addEventListener('change', function onTweetRateChange(e) {
-
-        var tweetRateOutput = document.getElementById('tweetRateOutput');
-        tweetRateOutput.value = e.currentTarget.value;
+        node.value = e.currentTarget.value;
         tweetStream.send(
             JSON.stringify(
                 {
@@ -62,5 +67,5 @@ function tweetRateUpdater(tweetStream) {
                 }
             )
         );
-    });
+    };
 }
