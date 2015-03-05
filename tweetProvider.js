@@ -2,6 +2,12 @@
 
 const events = require('events');
 
+/**
+ * Class acting as an interface for interacting with a stream of tweets (presumably taken from the Twitter stream API).
+ * Is observable and emits an event for tweets (with emit message 'tweet') and one for messages (with emit message 'message').
+ * @param websocketConnection Active connection to a websocket, will not interact with websocket, simply used for resource cleanup.
+ * @param tweetStream A TwitterStream instance providing the class with a source of tweets to provide an interface to.
+ */
 function tweetProvider(websocketConnection, tweetStream) {
     this.ws = websocketConnection;
 
@@ -41,6 +47,10 @@ function tweetProvider(websocketConnection, tweetStream) {
 tweetProvider.prototype = Object.create(events.EventEmitter.prototype);
 tweetProvider.prototype.constructor = tweetProvider;
 
+/**
+ * Sets the rate of tweets to be sent per second
+ * @param newRate Number of tweets per second for this instance to emit (maximum, not guaranteed to be accurate)
+ */
 tweetProvider.prototype.setRate = function(newRate) {
     this.tweetsPerSecondRate = newRate;
     this.millisecondsUntilTweet = (1 / this.tweetsPerSecondRate) * 1000;
