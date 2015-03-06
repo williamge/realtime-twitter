@@ -71,7 +71,6 @@ wss.on('connection', function(ws) {
     var wsID = crypto.randomBytes(4).toString('hex');
 
     console.log('ws connection open: ' + wsID);
-    ws.send('test');
 
     var tweets = new tweetProvider(ws, tweetStream);
 

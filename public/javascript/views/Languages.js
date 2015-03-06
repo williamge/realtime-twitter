@@ -1,37 +1,50 @@
 const React = require('react'),
-    reactMixins = require('../reactMixins');
+    reactMixins = require('../reactMixins'),
+    Statistics = require('./Statistics');
 
 const TimeoutTransitionGroup = require('../KhanReactComponents/js/timeout-transition-group.jsx');
 
 const TweetModel = require('../TweetModel'),
     TweetFilter = require('../TweetFilter');
 
-const LanguageItem = React.createClass({
-    propTypes: {
-        tweetFilter: React.PropTypes.object.isRequired
-    },
-    setLanguage: function() {
-        this.props.tweetFilter.setFilter(TweetFilter.types.language, this.props.language);
-    },
-    render: function() {
-        var classText = this.props.active ? 'language-active' : 'language';
-        var style = {
-            'backgroundSize': this.props.mwidth.toString() + 'px 100%'
-        };
-        return (
-            <li onClick={this.setLanguage} className={classText} style={style}>
-                <span>{this.props.language}:</span>
-                <span>{this.props.count}</span>
-            </li>
-        );
-    }
-});
+function LanguageItem (tweetFilter) {
+    return React.createClass({
+        setLanguage: function () {
+            tweetFilter.setFilter(TweetFilter.types.language, this.props.value);
+        },
+        render: function () {
+            var classText = this.props.active ? 'language-active' : 'language';
+            var style = {
+                'backgroundSize': this.props.mwidth.toString() + 'px 100%'
+            };
+            return (
+                <li onClick={this.setLanguage} className={classText} style={style}>
+                    <span>{this.props.value}:</span>
+                    <span>{this.props.count}</span>
+                </li>
+            );
+        }
+    });
+}
+
+const text = {
+    'NoContents': 'No languages to show yet'
+};
+
+const transitionTimeout = {
+    enter: 250,
+    leave: 250
+};
 
 module.exports = React.createClass({
-    mixins: [reactMixins.statisticsMixin, reactMixins.widthMixins],
     propTypes: {
         tweetModel: React.PropTypes.object.isRequired,
         tweetFilter: React.PropTypes.object.isRequired
+    },
+    getInitialState: function() {
+        return {
+            contents: {}
+        }
     },
     removeFilter: function() {
         this.props.tweetFilter.removeFilter();
@@ -40,55 +53,42 @@ module.exports = React.createClass({
         this.props.tweetModel.addListener(
             (message, tweet) => {
                 if (message === TweetModel.messageTypes.newTweet) {
-                    var contents = this.state.contents;
-                    var newContents = [tweet.lang];
-                    newContents.forEach(function (content) {
-                        contents[content] = (contents[content] || 0) + 1
-                    });
-                    this.setState({contents: contents});
+                    var languages = this.state.contents;
+                    languages[tweet.lang] = (languages[tweet.lang] || 0) + 1;
+                    this.setState({contents: languages});
                 }
-            });
-
-        this.props.tweetFilter.addListener(
-            (message, data) => {
-                if (message === TweetFilter.messageTypes.filterChange) {
-                    this.setState({activeLanguage: data});
-                }
-            });
+            }
+        );
+        const tweetFilter = this.props.tweetfilter;
+        //Only need to do this in state because we need to pass it a TweetFilter instance,
+        //which we're getting from our props
+        this.setState({
+            LanguageItem : LanguageItem(tweetFilter)
+        });
+    },
+    isActive: function(key) {
+        return this.props.tweetFilter.filter instanceof TweetFilter.types.language &&
+            this.props.tweetFilter.isActive(key);
     },
     render: function () {
-        var sortedList = this.getListForRender(this.state.contents);
-        var sumOfList = this.getSum(sortedList);
-
-        var renderedList = sortedList.map( (languageTuple) => {
-            const {language, count} = {language: languageTuple[0], count: languageTuple[1]};
-
-            var isActive = this.props.tweetFilter.isActive(language);
-            var childWidth = this.getChildWidth(count, sumOfList, this.state.myWidth);
-            return (
-                <LanguageItem  key={language} language={language} count={count} active={isActive} mwidth={childWidth} tweetFilter={this.props.tweetFilter}/>
-            );
-        });
-        if (renderedList.length === 0 ) {
-            renderedList.push(
-                <li><span>No languages to show yet</span></li>
-            )
-        }
         let removeFilter = null;
         if (this.props.tweetFilter.filter instanceof TweetFilter.types.language) {
             removeFilter = (
                 <button className="remove-filter-button" onClick={this.removeFilter} >Remove filter</button>
             )
         }
+
         return (
-            <div>
-                <label>Languages:</label> {removeFilter}
-                <ul className="languages">
-                    <TimeoutTransitionGroup transitionName='animFadeIn' enterTimeout={250} leaveTimeout={250} >
-                        {renderedList}
-                    </TimeoutTransitionGroup>
-                </ul>
-            </div>
-        );
+            <Statistics
+                data={this.state.contents}
+                isActive={this.isActive}
+                repeatingItem={this.state.LanguageItem}
+                text={text}
+                topButton={removeFilter}
+                class="languages"
+                transitionName="animFadeIn"
+                transitionTimeout={transitionTimeout}
+            />
+        )
     }
 });
