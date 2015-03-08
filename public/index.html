@@ -13,19 +13,20 @@
 </head>
 <body>
     <div class="mainContainer">
-        <div id="tweetSettings">
-            <label for='tweetRate'>Max tweets per second:</label>
-            <input type='range' id='tweetRate' min='1' value='1' max='10' step='1'>
-            <output for='tweetRate' id='tweetRateOutput'>1</output>
-        </div>
-
-        <section id="tweetsContainer">
-            <ul id="tweets">
-                <li class="tweet">
-                </li>
-            </ul>
-        </section>
-        <section class="statistics" id="statistics">
+        <section id="app">
+            <div id="tweetSettings">
+                <label for='tweetRate'>Max tweets per second:</label>
+                <input type='range' id='tweetRate' min='1' value='1' max='10' step='1'>
+                <output for='tweetRate' id='tweetRateOutput'>1</output>
+            </div>
+            <section id="tweetsContainer">
+                <ul id="tweets">
+                    <li class="tweet">
+                    </li>
+                </ul>
+            </section>
+            <section class="statistics" id="statistics">
+            </section>
         </section>
     </div>
 </body>

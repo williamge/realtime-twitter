@@ -1,3 +1,5 @@
+"use strict";
+
 //TODO: correct this documentation when moving to mixin
 /**
  * Class for interfacing with server over websocket connection. Will connect to the websocket server at wsURL and send tweets out to
@@ -5,7 +7,7 @@
  * @param wsURL
  * @constructor
  */
-function TweetStream (wsURL) {
+function TweetStream (wsURL, handlers) {
     this.ws = new WebSocket(wsURL);
 
     this.listeners = [];
@@ -16,6 +18,8 @@ function TweetStream (wsURL) {
             listen(parsed);
         });
     }.bind(this);
+
+    this.ws.onerror = handlers.onerror || function(){};
 }
 
 //TODO: mixin

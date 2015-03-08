@@ -33,8 +33,7 @@ module.exports = React.createClass({
             );
         });
         if (renderedList.length === 0) {
-            //only check against undefined, since null may be a valid use-case for not rendering anything
-            if (this.props.text['NoContents'] !== undefined) {
+            if (this.props.text['NoContents'] !== undefined || this.props.text['NoContents'] !== null) {
 
                 const innerText = this.props.text['NoContents'];
 

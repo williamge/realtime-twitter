@@ -9,43 +9,79 @@ var React = require('react');
 var Tweets = require('./views/Tweets'),
     Tags = require('./views/Tags'),
     Languages = require('./views/Languages'),
+    ErrorView = require('./views/Errors'),
     reactMixins = require('./reactMixins');
 
-
 document.addEventListener('DOMContentLoaded', function() {
+    "use strict";
 
-    var tweetFilter = new TweetFilter();
-    var tweetStream = new TweetStream(location.origin.replace(/^http/, 'ws'));
+    const App = React.createClass({
+        getInitialState: function(){
+            return {
+                errors: [],
+                tweetsRate: 1
+            }
+        },
+        handleWSError: function(event) {
+            let errors = this.state.errors;
+            errors.push(new Error("Could not connect to stream the tweets"));
+            this.setState({
+                errors
+            });
+        },
+        componentWillMount: function() {
+            const tweetFilter = new TweetFilter();
+            const tweetStream = new TweetStream(location.origin.replace(/^http/, 'ws'), {onerror: this.handleWSError});
+            const tweetModel = new TweetModel(tweetStream);
 
-    var tweetRate = document.getElementById('tweetRate');
-    tweetRate.addEventListener('change', tweetRateUpdater(tweetStream, document.getElementById('tweetRateOutput')));
-
-    var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
-
-    var tweetModel = new TweetModel(tweetStream);
-
-    React.render(
-        < Tweets tweetFilter={tweetFilter} tweetModel={tweetModel} />,
-        document.getElementById('tweetsContainer')
-    );
-
-
-    var Statistics = React.createClass({
+            this.setState({
+                tweetFilter,
+                tweetStream,
+                tweetModel
+            });
+        },
+        tweetRateUpdate: function (e) {
+            const tweetsRate = e.currentTarget.value;
+            this.setState({
+                tweetsRate
+            });
+            this.state.tweetStream.send(
+                JSON.stringify(
+                    {
+                        type: 'rate',
+                        rate: tweetsRate
+                    }
+                )
+            );
+        },
         render: function() {
             return (
-                <div>
-                    < Languages  tweetFilter={tweetFilter} tweetModel={tweetModel}  />
-                    < Tags tweetFilter={tweetFilter} tweetModel={tweetModel} />
-                </div>
-            );
+                <section >
+                    <div id="tweetSettings">
+                        <label htmlFor='tweetRate'>Max tweets per second:</label>
+                        <input type='range' id='tweetRate' min='1'  onChange={this.tweetRateUpdate}  value={this.state.tweetsRate} max='10' step='1'/>
+                        <output htmlFor='tweetRate' id='tweetRateOutput'>{this.state.tweetsRate}</output>
+                    </div>
+
+                    <section id="tweetsContainer">
+                        < Tweets tweetFilter={this.state.tweetFilter} tweetModel={this.state.tweetModel} />
+                    </section>
+
+                    <div className="statistics">
+                        < Languages  tweetFilter={this.state.tweetFilter} tweetModel={this.state.tweetModel}  />
+                        < Tags tweetFilter={this.state.tweetFilter} tweetModel={this.state.tweetModel} />
+                    </div>
+
+                    <ErrorView errors={this.state.errors}/>
+                </section>
+            )
         }
     });
 
     React.render(
-        < Statistics />,
-        document.getElementById('statistics')
-    );
-
+        < App />,
+        document.getElementById('app')
+    )
 });
 
 /**
@@ -55,17 +91,3 @@ document.addEventListener('DOMContentLoaded', function() {
  * @param node node to update label for
  * @returns {Function} onchange listener
  */
-function tweetRateUpdater(tweetStream, node) {
-    return function onTweetRateChange(e) {
-
-        node.value = e.currentTarget.value;
-        tweetStream.send(
-            JSON.stringify(
-                {
-                    type: 'rate',
-                    rate: tweetRateOutput.value
-                }
-            )
-        );
-    };
-}

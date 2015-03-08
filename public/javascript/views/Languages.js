@@ -59,7 +59,7 @@ module.exports = React.createClass({
                 }
             }
         );
-        const tweetFilter = this.props.tweetfilter;
+        const tweetFilter = this.props.tweetFilter;
         //Only need to do this in state because we need to pass it a TweetFilter instance,
         //which we're getting from our props
         this.setState({

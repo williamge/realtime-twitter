@@ -33,6 +33,10 @@ TweetModel.prototype.onNewTweet = function(tweet) {
 
     //nothing magical about this number, just needed something big, at some point this should be replaced with
     //smarter behaviour and not just blanket truncating to a certain number
+    //
+    //Here's a fun little fact: doing the slice each time a new tweet comes in is actually the same performance-wise as doing it only after 
+    //every 1000 or so tweets. The edge only goes to doing it every x or so tweets (and only by a small margin) if x is very very 
+    //large (2 or 3 times the size of the stored array)
     this.tweets = this.tweets.slice(0, 5000);
 
     this.dispatchEvent(TweetModel.messageTypes.newTweet, tweet);

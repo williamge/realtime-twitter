@@ -4,6 +4,8 @@ highlightColour = hsl(80, 29%, 80%)
 brightColour = hsl(78, 100%, 98%)
 weakColour = hsl(198, 28%, 34%)
 
+errorColour = hsl(349, 66%, 48%)
+
 background-linear-gradient(startPoint, startColour, endColour)
   background -webkit-linear-gradient(startPoint, startColour, endColour)
   background -moz-linear-gradient(startPoint, startColour, endColour)
@@ -153,3 +155,32 @@ remove-filter-button-base(backColour, textColour = highlightColour)
 
 .remove-filter-button:active
   remove-filter-button-base(weakColour - 20%)
+
+.errors-list
+  position: absolute;
+
+  margin: 0 auto;
+  padding: 1em;
+
+  left: 0;
+  right: 0;
+  top: 30px;
+
+  width: 33%;
+  min-width: 500px;
+
+  background-color: errorColour
+
+  list-style: none;
+  border: 1px solid errorColour - 40%;
+  box-shadow: 0px 2px 15px -3px errorColour - 100%
+  color: hsl(0, 0%, 95%)
+
+.error-icon
+    opacity: 0.5
+    font-size: 2.5em
+    float: left
+
+.error-text
+    padding: 0.25em 1em
+    text-align: center
