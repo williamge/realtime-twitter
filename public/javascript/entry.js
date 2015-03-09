@@ -83,11 +83,3 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('app')
     )
 });
-
-/**
- * Returns an onchange listener to send an updated tweet rate value back to the given tweetStream, and will update the label
- * for the DOM node.
- * @param tweetStream
- * @param node node to update label for
- * @returns {Function} onchange listener
- */
